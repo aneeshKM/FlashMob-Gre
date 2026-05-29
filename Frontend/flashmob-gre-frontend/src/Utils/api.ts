@@ -1,13 +1,19 @@
-import axios from "axios";
+export interface Word {
+    id: number;
+    word: string;
+    marathiMeaning: string;
+    englishMeaning: string;
+    sampleSentence: string;
+}
 
-export const getData =async () => {
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "/api").replace(/\/$/, "");
 
-    try {
-        const response = await axios.get("http://localhost:8080/getWordData");
-        return response.data;
+export const getData = async (): Promise<Word[]> => {
+    const response = await fetch(`${API_BASE_URL}/getWordData`);
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch word data: ${response.status}`);
     }
-    catch(error){
-        return error;
-    }
-    
+
+    return response.json() as Promise<Word[]>;
 };

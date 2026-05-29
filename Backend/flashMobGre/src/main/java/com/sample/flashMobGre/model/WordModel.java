@@ -1,4 +1,4 @@
-package com.sample.flashmobgre.model;
+package com.sample.flashMobGre.model;
 
 import lombok.Data;
 

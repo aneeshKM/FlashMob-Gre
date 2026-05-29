@@ -1,4 +1,4 @@
-package com.sample.flashmobgre;
+package com.sample.flashMobGre;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,6 +1,6 @@
-package com.sample.flashmobgre.service;
+package com.sample.flashMobGre.service;
 
-import com.sample.flashmobgre.model.WordModel;
+import com.sample.flashMobGre.model.WordModel;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
