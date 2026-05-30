@@ -14,6 +14,8 @@ const FlashCardsPage = () => {
     const [isFlipped, setIsFlipped] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [hasShownTimedHint, setHasShownTimedHint] = useState(false);
+    const [showTimedHint, setShowTimedHint] = useState(false);
 
     useEffect(() => {
         let active = true;
@@ -52,6 +54,33 @@ const FlashCardsPage = () => {
     }, [selectedSet.offset, selectedSet.limit]);
 
     const activeWord = data[currentIndex];
+
+    useEffect(() => {
+        if (!activeWord || isFlipped || hasShownTimedHint) {
+            setShowTimedHint(false);
+            return undefined;
+        }
+
+        const hintDelay = window.setTimeout(() => {
+            setShowTimedHint(true);
+            setHasShownTimedHint(true);
+        }, 5000);
+
+        return () => window.clearTimeout(hintDelay);
+    }, [activeWord, isFlipped, hasShownTimedHint]);
+
+    useEffect(() => {
+        if (!showTimedHint) {
+            return undefined;
+        }
+
+        const hideDelay = window.setTimeout(() => {
+            setShowTimedHint(false);
+        }, 3500);
+
+        return () => window.clearTimeout(hideDelay);
+    }, [showTimedHint]);
+
     const progress = data.length > 0 ? ((currentIndex + 1) / data.length) * 100 : 0;
     const rangeLabel = useMemo(() => {
         if (data.length === 0) {
@@ -126,7 +155,12 @@ const FlashCardsPage = () => {
                             <span className="flip-card-inner">
                                 <span className="flip-card-face flashcard-front">
                                     <span className="flashcard-id">#{activeWord.id}</span>
-                                    <span className="flashcard-word">{activeWord.word}</span>
+                                    <span className="flashcard-front-content">
+                                        <span className="flashcard-word">{activeWord.word}</span>
+                                        <span className={`flashcard-hint${showTimedHint ? ' is-visible' : ''}`}>
+                                            Tap card for meaning
+                                        </span>
+                                    </span>
                                 </span>
 
                                 <span className="flip-card-face flashcard-back">

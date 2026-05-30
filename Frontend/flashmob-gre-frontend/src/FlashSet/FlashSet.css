@@ -36,12 +36,82 @@
     font-weight: 650;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.add-word-open-button,
+.add-word-actions .btn {
+    min-height: 2.75rem;
+    border: 0;
+    border-radius: 8px;
+    background: #0f766e;
+    font-weight: 750;
+}
+
+.add-word-open-button:hover,
+.add-word-open-button:focus-visible,
+.add-word-actions .btn:hover,
+.add-word-actions .btn:focus-visible {
+    background: #0b5f59;
+}
+
 .set-state-panel {
     display: flex;
     align-items: center;
     gap: 0.85rem;
     min-height: 10rem;
     color: #5b6776;
+}
+
+.add-word-modal .modal-content {
+    border: 0;
+    border-radius: 8px;
+}
+
+.add-word-modal .modal-title {
+    font-weight: 750;
+}
+
+.add-word-mode-toggle {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.add-word-mode-toggle .btn {
+    min-height: 2.75rem;
+    border-radius: 8px;
+    font-weight: 750;
+}
+
+.add-word-modal .form-label {
+    color: #3f4b59;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.add-word-modal .form-control {
+    min-height: 2.75rem;
+    border-color: #cfd8e3;
+    border-radius: 8px;
+}
+
+.add-word-modal .form-control:focus {
+    border-color: #0f766e;
+    box-shadow: 0 0 0 0.2rem rgba(15, 118, 110, 0.15);
+}
+
+.add-word-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.add-word-actions .btn {
+    min-width: 8rem;
 }
 
 .practice-set-card {
@@ -138,5 +208,15 @@
     .set-card-count {
         min-width: 4.25rem;
         min-height: 4.25rem;
+    }
+
+    .header-actions {
+        align-items: stretch;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .add-word-open-button {
+        width: 100%;
     }
 }

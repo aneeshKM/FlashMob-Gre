@@ -11,6 +11,27 @@ export interface GetDataOptions {
     limit?: number;
 }
 
+export interface AddWordPayload {
+    word: string;
+    marathiMeaning: string;
+    englishMeaning?: string;
+    sampleSentence: string;
+}
+
+export interface SkippedWord {
+    rowNumber: number;
+    word: string;
+    reason: string;
+}
+
+export interface WordImportResult {
+    totalRows: number;
+    addedWords: Word[];
+    skippedWords: SkippedWord[];
+    addedCount: number;
+    skippedCount: number;
+}
+
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "/api").replace(/\/$/, "");
 
 export const getData = async (options: GetDataOptions = {}): Promise<Word[]> => {
@@ -32,4 +53,54 @@ export const getData = async (options: GetDataOptions = {}): Promise<Word[]> => 
     }
 
     return response.json() as Promise<Word[]>;
+};
+
+export const addWord = async (payload: AddWordPayload): Promise<Word> => {
+    const response = await fetch(`${API_BASE_URL}/addWord`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+        let message = `Failed to add word: ${response.status}`;
+
+        try {
+            const body = await response.json() as { message?: string };
+            message = body.message ?? message;
+        } catch {
+            // Keep the HTTP status message if the response body is not JSON.
+        }
+
+        throw new Error(message);
+    }
+
+    return response.json() as Promise<Word>;
+};
+
+export const addWordsFile = async (file: File): Promise<WordImportResult> => {
+    const formData = new FormData();
+    formData.set("file", file);
+
+    const response = await fetch(`${API_BASE_URL}/addWordsFile`, {
+        method: "POST",
+        body: formData,
+    });
+
+    if (!response.ok) {
+        let message = `Failed to import words: ${response.status}`;
+
+        try {
+            const body = await response.json() as { message?: string };
+            message = body.message ?? message;
+        } catch {
+            // Keep the HTTP status message if the response body is not JSON.
+        }
+
+        throw new Error(message);
+    }
+
+    return response.json() as Promise<WordImportResult>;
 };

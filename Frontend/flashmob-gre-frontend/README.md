@@ -19,10 +19,12 @@ npm test
 
 ## Backend API
 
-By default, Vite proxies `/api` to `http://localhost:8080`, so the app calls `/api/getWordData` in development.
+By default, `.env.development` sets `VITE_API_BASE_URL=/api`. Vite proxies `/api` to `http://localhost:8080`, so the app calls `/api/getWordData` in development.
 
-To point at another backend URL, set:
+For production, set this in Netlify/Vercel environment variables:
 
-```bash
-VITE_API_BASE_URL=http://localhost:8080 npm run dev
+```text
+VITE_API_BASE_URL=https://your-backend-domain.example
 ```
+
+Use `.env.production.example` as the template if you want a local production env file.
