@@ -8,6 +8,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<FlashSet />} />
         <Route path="/set" element={<FlashCardsPage />} />
+        <Route path="/set/:setId" element={<FlashCardsPage />} />
       </Routes>
     </BrowserRouter>
   );

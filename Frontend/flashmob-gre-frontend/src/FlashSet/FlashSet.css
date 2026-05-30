@@ -1,33 +1,142 @@
-.custom-card {
-    background-color: #f8f9fa;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
-    transition: box-shadow 0.3s ease;
-  
-    /* Increase padding and margin for better spacing */
-    padding: 1rem;
-  }
-  
-  /* Hover effect for the custom card */
-  .custom-card:hover {
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
-  }
-  
-  /* Additional styling for the card title */
-  .custom-card .card-title {
-    font-size: 1.25rem;
-    color: #333;
-    margin-bottom: 0.5rem;
-  }
-  
-  /* Styling for the card text */
-  .custom-card .card-text {
-    color: #666;
-  }
+.flash-set-page {
+    min-height: 100vh;
+    background: #f4f6f8;
+    color: #17202a;
+}
 
-  .custom-h1 {
+.page-kicker {
+    margin-bottom: 0.35rem;
+    color: #0f766e;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.page-title {
+    margin-bottom: 0.35rem;
+    color: #17202a;
     font-size: 2.5rem;
-    color: #007bff;
-    margin-bottom: 1.5rem;
-  }
+    font-weight: 750;
+    letter-spacing: 0;
+}
+
+.page-subtitle {
+    max-width: 42rem;
+    margin: 0;
+    color: #5b6776;
+    font-size: 1.05rem;
+}
+
+.word-total-badge {
+    border: 1px solid #d8e0e8;
+    border-radius: 999px;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.95rem;
+    font-weight: 650;
+}
+
+.set-state-panel {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-height: 10rem;
+    color: #5b6776;
+}
+
+.practice-set-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 8.25rem;
+    padding: 1.25rem;
+    border: 1px solid #d8e0e8;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #17202a;
+    text-align: left;
+    box-shadow: 0 10px 24px rgba(23, 32, 42, 0.06);
+    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.practice-set-card:hover,
+.practice-set-card:focus-visible {
+    border-color: #0f766e;
+    box-shadow: 0 14px 30px rgba(23, 32, 42, 0.1);
+    transform: translateY(-2px);
+}
+
+.practice-set-card:focus-visible {
+    outline: 3px solid rgba(15, 118, 110, 0.22);
+    outline-offset: 3px;
+}
+
+.set-card-copy,
+.set-card-count {
+    display: flex;
+    flex-direction: column;
+}
+
+.set-card-copy {
+    min-width: 0;
+    gap: 0.35rem;
+}
+
+.set-card-title {
+    overflow: hidden;
+    color: #17202a;
+    font-size: 1.35rem;
+    font-weight: 750;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.set-card-range {
+    color: #5b6776;
+    font-size: 0.95rem;
+}
+
+.set-card-count {
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    min-width: 4.75rem;
+    min-height: 4.75rem;
+    border: 1px solid #f3c56b;
+    border-radius: 8px;
+    background: #fff7e6;
+    color: #8a4b00;
+}
+
+.set-card-count span:first-child {
+    font-size: 1.3rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.set-card-count span:last-child {
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 650;
+}
+
+@media (max-width: 575.98px) {
+    .page-title {
+        font-size: 2rem;
+    }
+
+    .practice-set-card {
+        min-height: 7.5rem;
+        padding: 1rem;
+    }
+
+    .set-card-title {
+        font-size: 1.15rem;
+    }
+
+    .set-card-count {
+        min-width: 4.25rem;
+        min-height: 4.25rem;
+    }
+}

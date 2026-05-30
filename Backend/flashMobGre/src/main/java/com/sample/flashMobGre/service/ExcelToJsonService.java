@@ -1,49 +1,55 @@
 package com.sample.flashMobGre.service;
 
 import com.sample.flashMobGre.model.WordModel;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
+
+
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+
 @Service
 public class ExcelToJsonService {
 
+    public List<WordModel> readExcel() {
 
-    private int id = 1;
-    public List<WordModel> readExcel(String filePath){
-        List<WordModel> WordModelList = new ArrayList<>();
+        List<WordModel> wordModelList = new ArrayList<>();
+        int id = 1; // Initialize ID counter
 
-
-        try (InputStream inputStream = new FileInputStream(filePath);
-             Workbook workbook = WorkbookFactory.create(inputStream)) {
+        try (InputStream inputStream = new ClassPathResource("Words.xlsx").getInputStream();
+            Workbook workbook = WorkbookFactory.create(inputStream)) {
 
             Sheet sheet = workbook.getSheetAt(0); // Assuming data is in the first sheet
+            DataFormatter formatter = new DataFormatter();
 
             Iterator<Row> rowIterator = sheet.iterator();
             rowIterator.next(); // Skip the header row
 
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
-                WordModel WordModel = new WordModel();
+                WordModel wordModel = new WordModel();
 
-                WordModel.setId(id++);
-                WordModel.setWord(row.getCell(0).getStringCellValue());
-                WordModel.setMarathiMeaning(row.getCell(1).getStringCellValue());
-                WordModel.setEnglishMeaning(row.getCell(2).getStringCellValue());
-                WordModel.setSampleSentence(row.getCell(3).getStringCellValue());
+                String word = getCellValue(formatter, row, 0);
+                if (word.isBlank()) {
+                    continue;
+                }
 
-                WordModelList.add(WordModel);
+                wordModel.setId(id++);
+                wordModel.setWord(word);
+                wordModel.setMarathiMeaning(getCellValue(formatter, row, 1));
+                wordModel.setEnglishMeaning(getCellValue(formatter, row, 2));
+                wordModel.setSampleSentence(getCellValue(formatter, row, 3));
+
+                wordModelList.add(wordModel);
             }
             id = 1;
         } catch (Exception e) {
@@ -51,22 +57,10 @@ public class ExcelToJsonService {
             e.printStackTrace();
         }
 
-        return WordModelList;
+        return wordModelList;
     }
 
-    public String generateJsonFromWordModel(List<WordModel> WordModelList) {
-        JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
-
-        for (WordModel WordModel : WordModelList) {
-            JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder()
-                    .add("word", WordModel.getWord())
-                    .add("Marathi Meaning", WordModel.getMarathiMeaning())
-                    .add("English Meaning",WordModel.getEnglishMeaning())
-                    .add("Sample Sentence", WordModel.getSampleSentence());
-
-            jsonArrayBuilder.add(jsonObjectBuilder);
-        }
-
-        return jsonArrayBuilder.build().toString();
+    private String getCellValue(DataFormatter formatter, Row row, int cellIndex) {
+        return formatter.formatCellValue(row.getCell(cellIndex)).trim();
     }
 }

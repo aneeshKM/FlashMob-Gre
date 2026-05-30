@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -18,10 +19,25 @@ public class WordDataController {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/getWordData")
-    public ResponseEntity<List<WordModel>> getWordData() {
-        String filePath = "/Users/Aneesh/Aneesh/Code/FlashMob-Gre/Backend/flashMobGre/src/main/java/com/sample/flashMobGre/service/Words.xlsx"; // Replace with the actual file path
+    public ResponseEntity<List<WordModel>> getWordData(
+            @RequestParam(required = false) Integer offset,
+            @RequestParam(required = false) Integer limit) {
+        List<WordModel> wordDataList = excelToJsonService.readExcel();
 
-        List<WordModel> wordDataList = excelToJsonService.readExcel(filePath);
-        return ResponseEntity.ok(wordDataList);
+        if (offset == null && limit == null) {
+            return ResponseEntity.ok(wordDataList);
+        }
+
+        int startIndex = Math.max(offset == null ? 0 : offset, 0);
+        int requestedLimit = Math.max(limit == null ? wordDataList.size() : limit, 0);
+
+        if (startIndex >= wordDataList.size() || requestedLimit == 0) {
+            return ResponseEntity.ok(List.of());
+        }
+
+        int endIndex = Math.min(startIndex + requestedLimit, wordDataList.size());
+        List<WordModel> selectedWords = wordDataList.subList(startIndex, endIndex);
+
+        return ResponseEntity.ok(selectedWords);
     }
 }
