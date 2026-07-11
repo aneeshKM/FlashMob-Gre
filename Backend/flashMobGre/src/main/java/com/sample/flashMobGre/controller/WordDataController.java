@@ -5,12 +5,14 @@ import com.sample.flashMobGre.model.WordImportResult;
 import com.sample.flashMobGre.model.WordModel;
 import com.sample.flashMobGre.service.DuplicateWordException;
 import com.sample.flashMobGre.service.ExcelToJsonService;
+import com.sample.flashMobGre.service.WordAdditionAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +25,9 @@ public class WordDataController {
 
     @Autowired
     private ExcelToJsonService excelToJsonService;
+
+    @Autowired
+    private WordAdditionAuthService wordAdditionAuthService;
 
     @GetMapping("/getWordData")
     public ResponseEntity<List<WordModel>> getWordData(
@@ -48,7 +53,14 @@ public class WordDataController {
     }
 
     @PostMapping("/addWord")
-    public ResponseEntity<?> addWord(@RequestBody AddWordRequest request) {
+    public ResponseEntity<?> addWord(
+            @RequestHeader(name = WordAdditionAuthService.PASSWORD_HEADER, required = false) String password,
+            @RequestBody AddWordRequest request) {
+        ResponseEntity<?> authFailure = validateWordAdditionPassword(password);
+        if (authFailure != null) {
+            return authFailure;
+        }
+
         try {
             WordModel addedWord = excelToJsonService.addWord(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(addedWord);
@@ -62,7 +74,14 @@ public class WordDataController {
     }
 
     @PostMapping("/addWordsFile")
-    public ResponseEntity<?> addWordsFile(@RequestParam(name = "file", required = false) MultipartFile file) {
+    public ResponseEntity<?> addWordsFile(
+            @RequestHeader(name = WordAdditionAuthService.PASSWORD_HEADER, required = false) String password,
+            @RequestParam(name = "file", required = false) MultipartFile file) {
+        ResponseEntity<?> authFailure = validateWordAdditionPassword(password);
+        if (authFailure != null) {
+            return authFailure;
+        }
+
         if (file == null || file.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("message", "File is required."));
         }
@@ -79,5 +98,19 @@ public class WordDataController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of("message", "Unable to import words from file."));
         }
+    }
+
+    private ResponseEntity<?> validateWordAdditionPassword(String password) {
+        if (!wordAdditionAuthService.isConfigured()) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(Map.of("message", "Word addition password is not configured."));
+        }
+
+        if (!wordAdditionAuthService.isAuthorized(password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Invalid word addition password."));
+        }
+
+        return null;
     }
 }

@@ -4,6 +4,7 @@ import com.sample.flashMobGre.model.AddWordRequest;
 import com.sample.flashMobGre.model.SkippedWordModel;
 import com.sample.flashMobGre.model.WordImportResult;
 import com.sample.flashMobGre.model.WordModel;
+import jakarta.annotation.PostConstruct;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -36,6 +37,26 @@ public class ExcelToJsonService {
 
     public ExcelToJsonService(@Value("${words.excel.path:src/main/resources/Words.xlsx}") String excelPath) {
         this.writableExcelPath = Path.of(excelPath);
+    }
+
+    @PostConstruct
+    void initializeWritableExcel() {
+        if (Files.exists(writableExcelPath)) {
+            return;
+        }
+
+        try {
+            Path parent = writableExcelPath.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+
+            try (InputStream source = new ClassPathResource("Words.xlsx").getInputStream()) {
+                Files.copy(source, writableExcelPath);
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to initialize the writable word sheet.", e);
+        }
     }
 
     public synchronized List<WordModel> readExcel() {

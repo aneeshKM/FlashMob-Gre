@@ -47,6 +47,7 @@ const FlashSet = () => {
     const [addWordMode, setAddWordMode] = useState<AddWordMode>("single");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [fileInputKey, setFileInputKey] = useState(0);
+    const [wordAdditionPassword, setWordAdditionPassword] = useState("");
     const [addWordStatus, setAddWordStatus] = useState<{
         type: "success" | "danger";
         message: string;
@@ -120,6 +121,14 @@ const FlashSet = () => {
             return;
         }
 
+        if (!wordAdditionPassword) {
+            setAddWordStatus({
+                type: "danger",
+                message: "Enter the word addition password.",
+            });
+            return;
+        }
+
         setSubmittingWord(true);
         setAddWordStatus(null);
 
@@ -127,7 +136,7 @@ const FlashSet = () => {
             const addedWord = await addWord({
                 ...wordForm,
                 word: wordForm.word.trim().replace(/\s+/g, " "),
-            });
+            }, wordAdditionPassword);
 
             setTotalWords((currentTotal) => Math.max(currentTotal + 1, addedWord.id));
             setWordForm({ ...emptyWordForm });
@@ -151,11 +160,15 @@ const FlashSet = () => {
         setAddWordStatus(null);
 
         try {
+            if (!wordAdditionPassword) {
+                throw new Error("Enter the word addition password.");
+            }
+
             if (!selectedFile) {
                 throw new Error("Choose an Excel or CSV file first.");
             }
 
-            const result = await addWordsFile(selectedFile);
+            const result = await addWordsFile(selectedFile, wordAdditionPassword);
 
             setTotalWords((currentTotal) => currentTotal + result.addedCount);
             setSelectedFile(null);
@@ -222,6 +235,21 @@ const FlashSet = () => {
                                 {addWordStatus.message}
                             </Alert>
                         )}
+
+                        <Form.Group controlId="wordAdditionPassword" className="mb-3">
+                            <Form.Label>Word Addition Password</Form.Label>
+                            <Form.Control
+                                type="password"
+                                value={wordAdditionPassword}
+                                onChange={(event) => setWordAdditionPassword(event.target.value)}
+                                placeholder="Required to add or import words"
+                                autoComplete="current-password"
+                                required
+                            />
+                            <Form.Text>
+                                This password is checked by the backend and is not stored in the app.
+                            </Form.Text>
+                        </Form.Group>
 
                         {addWordMode === "single" && (
                             <Form onSubmit={submitWord}>

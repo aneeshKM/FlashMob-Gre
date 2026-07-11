@@ -55,11 +55,14 @@ export const getData = async (options: GetDataOptions = {}): Promise<Word[]> => 
     return response.json() as Promise<Word[]>;
 };
 
-export const addWord = async (payload: AddWordPayload): Promise<Word> => {
+const WORD_ADDITION_PASSWORD_HEADER = "X-Word-Addition-Password";
+
+export const addWord = async (payload: AddWordPayload, password: string): Promise<Word> => {
     const response = await fetch(`${API_BASE_URL}/addWord`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            [WORD_ADDITION_PASSWORD_HEADER]: password,
         },
         body: JSON.stringify(payload),
     });
@@ -80,12 +83,15 @@ export const addWord = async (payload: AddWordPayload): Promise<Word> => {
     return response.json() as Promise<Word>;
 };
 
-export const addWordsFile = async (file: File): Promise<WordImportResult> => {
+export const addWordsFile = async (file: File, password: string): Promise<WordImportResult> => {
     const formData = new FormData();
     formData.set("file", file);
 
     const response = await fetch(`${API_BASE_URL}/addWordsFile`, {
         method: "POST",
+        headers: {
+            [WORD_ADDITION_PASSWORD_HEADER]: password,
+        },
         body: formData,
     });
 

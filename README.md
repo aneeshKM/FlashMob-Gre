@@ -105,9 +105,12 @@ In production, run with the `prod` profile and set the frontend origin:
 SPRING_PROFILES_ACTIVE=prod
 APP_CORS_ALLOWED_ORIGINS=https://your-frontend-domain.example
 WORDS_EXCEL_PATH=/path/to/persistent/Words.xlsx
+WORD_ADDITION_PASSWORD=choose-a-strong-password
 ```
 
 `APP_CORS_ALLOWED_ORIGINS` controls which frontend domains can call the backend. Use a comma-separated list if you need more than one origin.
+
+`WORD_ADDITION_PASSWORD` protects the word-addition and file-import endpoints. Do not put this value in frontend environment variables.
 
 The frontend uses Vite environment variables:
 
@@ -119,6 +122,82 @@ For Netlify or Vercel, set this environment variable in the site settings:
 ```text
 VITE_API_BASE_URL=https://your-backend-domain.example
 ```
+
+## Deployment
+
+Recommended deployment:
+
+- Backend: Railway
+- Frontend: Vercel
+- Mutable word sheet: Railway volume mounted to the backend
+
+### Railway backend
+
+Create a Railway service from this repository and set the service root directory to:
+
+```text
+Backend/flashMobGre
+```
+
+Set these backend variables:
+
+```text
+SPRING_PROFILES_ACTIVE=prod
+APP_CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app
+WORD_ADDITION_PASSWORD=choose-a-strong-password
+```
+
+Attach a Railway volume to the backend service. The production config stores the writable workbook at:
+
+```text
+${RAILWAY_VOLUME_MOUNT_PATH}/Words.xlsx
+```
+
+If you do not use Railway's default volume variable, set `WORDS_EXCEL_PATH` manually:
+
+```text
+WORDS_EXCEL_PATH=/data/Words.xlsx
+```
+
+The backend seeds the writable workbook from the bundled `Words.xlsx` file on first startup if the volume file does not exist yet.
+
+After the backend deploys, generate a Railway public domain and copy that URL for the frontend.
+
+### Vercel frontend
+
+Create a Vercel project from this repository and set the project root directory to:
+
+```text
+Frontend/flashmob-gre-frontend
+```
+
+Use:
+
+```text
+Build command: npm run build
+Output directory: dist
+```
+
+Set this Vercel environment variable:
+
+```text
+VITE_API_BASE_URL=https://your-backend.up.railway.app
+```
+
+The frontend includes `vercel.json` so direct visits to routes such as `/set/1` load the Vite single-page app correctly.
+
+After Vercel deploys, update Railway's `APP_CORS_ALLOWED_ORIGINS` to the exact Vercel production URL.
+
+### Railway-only alternative
+
+You can deploy both services on Railway:
+
+1. Backend service root: `Backend/flashMobGre`
+2. Frontend service root: `Frontend/flashmob-gre-frontend`
+3. Frontend variable: `VITE_API_BASE_URL=https://your-backend.up.railway.app`
+4. Backend variable: `APP_CORS_ALLOWED_ORIGINS=https://your-frontend.up.railway.app`
+
+Keep the backend at one replica while the app uses one mutable Excel file.
 
 ## API
 
@@ -141,6 +220,7 @@ Add a word:
 ```http
 POST /addWord
 Content-Type: application/json
+X-Word-Addition-Password: your-password
 
 {
   "word": "Resolute",
@@ -157,6 +237,7 @@ Import words from Excel or CSV:
 ```http
 POST /addWordsFile
 Content-Type: multipart/form-data
+X-Word-Addition-Password: your-password
 
 file=<words.xlsx | words.xls | words.csv>
 ```
