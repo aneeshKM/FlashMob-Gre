@@ -29,6 +29,11 @@ public class WordDataController {
     @Autowired
     private WordAdditionAuthService wordAdditionAuthService;
 
+    @GetMapping("/health")
+    public Map<String, String> health() {
+        return Map.of("status", "ok");
+    }
+
     @GetMapping("/getWordData")
     public ResponseEntity<List<WordModel>> getWordData(
             @RequestParam(required = false) Integer offset,

@@ -117,7 +117,7 @@ The frontend uses Vite environment variables:
 - Local: `Frontend/flashmob-gre-frontend/.env.development`
 - Production template: `Frontend/flashmob-gre-frontend/.env.production.example`
 
-For Netlify or Vercel, set this environment variable in the site settings:
+For a production build outside the repository Blueprint, set:
 
 ```text
 VITE_API_BASE_URL=https://your-backend-domain.example
@@ -125,81 +125,40 @@ VITE_API_BASE_URL=https://your-backend-domain.example
 
 ## Deployment
 
-Recommended deployment:
+The root-level `render.yaml` is a Render Blueprint for the complete application:
 
-- Backend: Railway
-- Frontend: Vercel
-- Mutable word sheet: Railway volume mounted to the backend
+- `flashmob-gre-api`: Docker-based Spring Boot web service
+- `flashmob-gre-web`: Vite-powered Render static site
+- `flashmob-gre-data`: persistent disk mounted at `/var/data`
 
-### Railway backend
+In the Render Dashboard:
 
-Create a Railway service from this repository and set the service root directory to:
+1. Choose **New > Blueprint** and connect this repository.
+2. Keep the Blueprint path as `render.yaml`.
+3. Enter a strong `WORD_ADDITION_PASSWORD` when Render prompts for it.
+4. Apply the Blueprint.
 
-```text
-Backend/flashMobGre
-```
+The Blueprint automatically:
 
-Set these backend variables:
+- activates the backend's `prod` Spring profile;
+- stores the writable workbook at `/var/data/Words.xlsx`;
+- wires the Render frontend URL into the backend CORS configuration;
+- wires the Render API URL into the Vite production build;
+- pins the static-site build to Node.js 24.14.1 and installs from `package-lock.json`;
+- configures `/health` as the API health check;
+- rewrites static-site routes to `index.html` for React Router.
 
-```text
-SPRING_PROFILES_ACTIVE=prod
-APP_CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app
-WORD_ADDITION_PASSWORD=choose-a-strong-password
-```
+The API uses Render's `starter` plan because persistent disks are not available to free web services. The disk also limits the API to one instance, which is required while the app uses a single mutable Excel workbook. On first startup, the backend seeds `/var/data/Words.xlsx` from the bundled workbook if the disk is empty.
 
-Attach a Railway volume to the backend service. The production config stores the writable workbook at:
-
-```text
-${RAILWAY_VOLUME_MOUNT_PATH}/Words.xlsx
-```
-
-If you do not use Railway's default volume variable, set `WORDS_EXCEL_PATH` manually:
-
-```text
-WORDS_EXCEL_PATH=/data/Words.xlsx
-```
-
-The backend seeds the writable workbook from the bundled `Words.xlsx` file on first startup if the volume file does not exist yet.
-
-After the backend deploys, generate a Railway public domain and copy that URL for the frontend.
-
-### Vercel frontend
-
-Create a Vercel project from this repository and set the project root directory to:
-
-```text
-Frontend/flashmob-gre-frontend
-```
-
-Use:
-
-```text
-Build command: npm run build
-Output directory: dist
-```
-
-Set this Vercel environment variable:
-
-```text
-VITE_API_BASE_URL=https://your-backend.up.railway.app
-```
-
-The frontend includes `vercel.json` so direct visits to routes such as `/set/1` load the Vite single-page app correctly.
-
-After Vercel deploys, update Railway's `APP_CORS_ALLOWED_ORIGINS` to the exact Vercel production URL.
-
-### Railway-only alternative
-
-You can deploy both services on Railway:
-
-1. Backend service root: `Backend/flashMobGre`
-2. Frontend service root: `Frontend/flashmob-gre-frontend`
-3. Frontend variable: `VITE_API_BASE_URL=https://your-backend.up.railway.app`
-4. Backend variable: `APP_CORS_ALLOWED_ORIGINS=https://your-frontend.up.railway.app`
-
-Keep the backend at one replica while the app uses one mutable Excel file.
+If you later attach a custom domain to the static site, update the API service's `APP_CORS_ALLOWED_ORIGINS` value to that exact origin and redeploy the API.
 
 ## API
+
+Check API health:
+
+```http
+GET /health
+```
 
 Get all words:
 
