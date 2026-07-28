@@ -2,6 +2,8 @@
 
 FlashMob GRE is a simple GRE vocabulary flashcard site. It helps users study words from an Excel word list with a clean practice-set flow and click-to-flip flashcards. The bundled word sheet currently provides GRE words with English meanings, Marathi meanings, and sample sentences.
 
+> ### [🚀 Open the Live FlashMob GRE UI →](https://flashmob-gre-web.onrender.com)
+
 The first screen shows practice sets:
 
 - All Words: every word in the list.
@@ -218,3 +220,17 @@ Backend:
 cd Backend/flashMobGre
 bash ./mvnw test
 ```
+
+---
+
+## Live Deployment
+
+The backend is deployed on Render and available through the links below.
+
+| Service | Deployment link | What to check |
+| --- | --- | --- |
+| **Backend API** | **[Check API health →](https://flashmob-gre-api.onrender.com/health)** | Confirm that the Spring Boot API is online. |
+| **Vocabulary endpoint** | **[View sample data →](https://flashmob-gre-api.onrender.com/getWordData?offset=0&limit=1)** | View a live API response containing one word. |
+
+> [!NOTE]
+> Render's free backend may need a short time to wake up after a period of inactivity. If the UI initially cannot load its practice sets, wait briefly and refresh the page.
