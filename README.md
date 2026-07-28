@@ -127,9 +127,8 @@ VITE_API_BASE_URL=https://your-backend-domain.example
 
 The root-level `render.yaml` is a Render Blueprint for the complete application:
 
-- `flashmob-gre-api`: Docker-based Spring Boot web service
+- `flashmob-gre-api`: free Docker-based Spring Boot web service
 - `flashmob-gre-web`: Vite-powered Render static site
-- `flashmob-gre-data`: persistent disk mounted at `/var/data`
 
 In the Render Dashboard:
 
@@ -141,14 +140,14 @@ In the Render Dashboard:
 The Blueprint automatically:
 
 - activates the backend's `prod` Spring profile;
-- stores the writable workbook at `/var/data/Words.xlsx`;
+- creates a writable workbook at `/tmp/Words.xlsx`;
 - wires the Render frontend URL into the backend CORS configuration;
 - wires the Render API URL into the Vite production build;
 - pins the static-site build to Node.js 24.14.1 and installs from `package-lock.json`;
 - configures `/health` as the API health check;
 - rewrites static-site routes to `index.html` for React Router.
 
-The API uses Render's `starter` plan because persistent disks are not available to free web services. The disk also limits the API to one instance, which is required while the app uses a single mutable Excel workbook. On first startup, the backend seeds `/var/data/Words.xlsx` from the bundled workbook if the disk is empty.
+Both services deploy for free. Render's free web services use an ephemeral filesystem, so words added through the UI are lost whenever the API spins down, restarts, or redeploys. On each fresh startup, the backend seeds `/tmp/Words.xlsx` from the bundled workbook. Commit permanent word-list changes to `Backend/flashMobGre/src/main/resources/Words.xlsx`.
 
 If you later attach a custom domain to the static site, update the API service's `APP_CORS_ALLOWED_ORIGINS` value to that exact origin and redeploy the API.
 
