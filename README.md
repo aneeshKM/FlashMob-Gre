@@ -141,7 +141,7 @@ The Blueprint automatically:
 
 - activates the backend's `prod` Spring profile;
 - creates a writable workbook at `/tmp/Words.xlsx`;
-- wires the Render frontend URL into the backend CORS configuration;
+- configures the backend to allow requests from `https://flashmob-gre-web.onrender.com`;
 - wires the Render API URL into the Vite production build;
 - pins the static-site build to Node.js 24.14.1 and installs from `package-lock.json`;
 - configures `/health` as the API health check;

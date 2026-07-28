@@ -17,10 +17,7 @@ services:
       - key: WORDS_EXCEL_PATH
         value: /tmp/Words.xlsx
       - key: APP_CORS_ALLOWED_ORIGINS
-        fromService:
-          type: web
-          name: flashmob-gre-web
-          envVarKey: RENDER_EXTERNAL_URL
+        value: https://flashmob-gre-web.onrender.com
       - key: WORD_ADDITION_PASSWORD
         sync: false
 
